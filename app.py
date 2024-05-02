@@ -1,9 +1,15 @@
 import config
-from langchain_community.llms import Ollama
+from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
-llm = Ollama(model="llama3", temperature=0.3)
+secrets = config.load_secrets()
+
+llm = ChatOpenAI(
+  model="gpt-3.5-turbo",
+  temperature=0.3,
+  api_key=secrets["credentials"]["openai_api_key"]
+)
 
 prompt = ChatPromptTemplate.from_template(config.system_prompt)
 
