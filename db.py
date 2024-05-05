@@ -61,3 +61,14 @@ def get_products_by_stock(stock):
 
     conn.close()
     return products
+
+# Function to remove duplicate rows from the database
+def remove_duplicate_rows():
+    conn = sqlite3.connect('products.db')
+    c = conn.cursor()
+
+    # Delete duplicate rows from the 'products' table, keeping at least 1 row from each duplicate set
+    c.execute("DELETE FROM products WHERE rowid NOT IN (SELECT MIN(rowid) FROM products GROUP BY name, price HAVING COUNT(*) > 1)")
+
+    conn.commit()
+    conn.close()
