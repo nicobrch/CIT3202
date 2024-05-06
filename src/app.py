@@ -3,10 +3,8 @@ import db
 
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.output_parsers import StrOutputParser
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.tools import tool
-from langchain.tools.render import render_text_description
 
 llm = ChatOpenAI(
   model="gpt-3.5-turbo",
@@ -47,7 +45,7 @@ agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
 result = agent_executor.invoke(
   {
-    "input": "Cuál es el producto más barato que venden?"
+    "input": "Cuál es el horario de atención?"
   }
 )
 
