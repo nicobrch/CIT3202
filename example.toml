@@ -3,4 +3,9 @@ openai_api_key = ""
 
 [chatbot]
 system_prompt = ""
-web_product_path = ""
+
+[web]
+products = ""
+documents = [
+  "",
+]
