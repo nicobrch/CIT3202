@@ -1,27 +1,54 @@
 import config
+import db
+
 from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import StrOutputParser
+from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_core.tools import tool
+from langchain.tools.render import render_text_description
 
-# Load secrets
-secrets = config.load_secrets()
-
-# Configure the language model
 llm = ChatOpenAI(
   model="gpt-3.5-turbo",
   temperature=0.3,
-  api_key=secrets["credentials"]["openai_api_key"]
+  api_key=config.api_key
 )
 
-# Configure the prompt
-prompt = ChatPromptTemplate.from_template(config.system_prompt)
+@tool
+def obtener_productos_por_precio(min_price, max_price):
+  """Obtiene los productos dentro de un rango de precios."""
+  products = db.get_products_by_price_range(min_price, max_price)
+  return products
 
-output_parser = StrOutputParser()
+@tool
+def obtener_productos_por_stock(stock):
+  """Obtiene los productos por disponibilidad de stock. Por ejemplo, si stock es True, se obtienen los productos en stock."""
+  products = db.get_products_by_stock(stock)
+  return products
 
-# Define the chain
-chain = prompt | llm | output_parser
+tools = [
+  obtener_productos_por_precio,
+  obtener_productos_por_stock
+]
 
-# Run the chain
-response = chain.invoke({"input": "Tienen figuras de one piece?"})
+prompt = ChatPromptTemplate.from_messages(
+  [
+    ("system", config.system_prompt),
+    ("user", "{input}"),
+    MessagesPlaceholder("agent_scratchpad")
+  ]
+)
 
-print("Geeki: ", response)
+# Construct the tool calling agent
+agent = create_tool_calling_agent(llm, tools, prompt)
+
+# Create an agent executor by passing in the agent and tools
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+
+result = agent_executor.invoke(
+  {
+    "input": "Cuál es el producto más barato que venden?"
+  }
+)
+
+print(result["output"])
