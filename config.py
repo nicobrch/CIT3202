@@ -8,7 +8,10 @@ def load_secrets():
 
 secrets = load_secrets()
 
-# Prompt inicial para el bot de Geekz
+# OpenAI Api Key
+api_key = secrets["credentials"]["openai_api_key"]
+
+# Chatbot Prompt
 system_prompt = secrets["chatbot"]["system_prompt"]
 
 # Páginas de la empresa Geekz
