@@ -28,7 +28,9 @@ class Chatbot:
     tools = [
       bot_tools.obtener_productos_por_precio,
       bot_tools.obtener_productos_por_stock,  
-      bot_tools.obtener_todos_los_productos
+      bot_tools.obtener_todos_los_productos,
+      bot_tools.obtener_informacion_de_la_empresa,
+      bot_tools.obtener_preguntas_frecuentes
     ]
 
     tool_agent = create_tool_calling_agent(llm, tools, prompt)

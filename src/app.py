@@ -4,6 +4,6 @@ agent = chatbot.Chatbot()
 
 agent.make_agent()
 
-result = agent.ask("Cuáles son los 5 productos más baratos?")
+result = agent.ask("A qué hora está abierta la tienda de costanera center?")
 
 print(result)
