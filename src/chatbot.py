@@ -4,8 +4,13 @@ from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.messages import HumanMessage
+import time
+import csv
 
 chat_history = []
+questions = []
+answers = []
+response_time = []
 
 class Chatbot:
     def __init__(self):
@@ -51,6 +56,9 @@ class Chatbot:
         self.agent = agent_executor
 
     def ask(self, prompt, callbacks):
+
+        start_time = time.time()
+
         response = self.agent.invoke(
             {
                 "chat_history": chat_history,
@@ -61,6 +69,19 @@ class Chatbot:
             }
         )
 
+        end_time = time.time()
+        response_time.append(end_time - start_time)
+
+        questions.append(prompt)
+        answers.append(response["output"])
+
         chat_history.extend([HumanMessage(content=prompt), response["output"]])
 
         return response["output"]
+    
+def output_to_csv(file_path="../data/chat_history.csv"):
+    with open(file_path, 'w', newline='', encoding="utf-8") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(['Questions', 'Answers', 'Response Time'])
+        for i in range(len(questions)):
+            writer.writerow([questions[i], answers[i], response_time[i]])

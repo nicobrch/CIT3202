@@ -25,4 +25,5 @@ if prompt := st.chat_input():
     with st.chat_message("assistant"):
         response = agent.ask(prompt, st_callback)
         msgs.add_ai_message(response)
+        chatbot.output_to_csv()
         st.write(response)
