@@ -1,6 +1,6 @@
 import sqlite3
 
-db_name = "products.db"
+db_name = "../products.db"
 
 # Function to create the database and the 'products' table
 def create_database():

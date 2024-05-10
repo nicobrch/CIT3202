@@ -2,62 +2,65 @@ import config
 import bot_tools
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents.format_scratchpad.openai_tools import (
-    format_to_openai_tool_messages,
-)
-from langchain.agents.output_parsers.openai_tools import OpenAIToolsAgentOutputParser
-from langchain.agents import AgentExecutor
+from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain_core.messages import HumanMessage
+
+chat_history = []
 
 class Chatbot:
-  def __init__(self):
-    self.agent = None
-    self.chat_history = []
+    def __init__(self):
+        self.agent = None
 
-  def make_agent(self):
-    # Define the language model
-    llm = ChatOpenAI(
-      model="gpt-3.5-turbo",
-      temperature=0.4,
-      api_key=config.api_key
-    )
+        # Define the language model
+        llm = ChatOpenAI(
+            api_key=config.api_key,
+            model="gpt-3.5-turbo",
+            temperature=0.5,
+            streaming=True,
+        )
 
-    # Define the prompt
-    prompt = ChatPromptTemplate.from_messages(
-      [
-        ("system", config.system_prompt),
-        MessagesPlaceholder("chat_history"),
-        ("user", "{input}"),
-        MessagesPlaceholder("agent_scratchpad")
-      ]
-    )
+        # Define tools for the language model
+        tools = bot_tools.tools
 
-    # Define the tools for sql queries
-    tools = bot_tools.tools
+        # Define the llm with tools
+        llm_with_tools = llm.bind_tools(tools)
 
-    llm_with_tools = llm.bind_tools(tools)
+        # Define the prompt
+        prompt = ChatPromptTemplate.from_messages(
+            [
+                ("system",config.system_prompt,),
+                MessagesPlaceholder("chat_history"),
+                ("human", "{input}"),
+                MessagesPlaceholder("agent_scratchpad"),
+            ]
+        )
 
-    # Create the agent executor
-    agent = (
-      {
-        "input": lambda x: x["input"],
-        "agent_scratchpad": lambda x: format_to_openai_tool_messages(
-            x["intermediate_steps"]
-        ),
-        "chat_history": lambda x: x["chat_history"]
-      }
-      | prompt
-      | llm_with_tools
-      | OpenAIToolsAgentOutputParser()
-    )
+        agent = create_tool_calling_agent(
+            llm=llm_with_tools,
+            prompt=prompt,
+            tools=tools,
+        )
 
-    agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+        agent_executor = AgentExecutor(
+            agent=agent,
+            tools=tools,
+            verbose=True,
+            handle_parsing_errors=True
+        )
 
-    self.agent = agent_executor
+        self.agent = agent_executor
 
-  def ask(self, message):
-    # Invoke the agent with the message
-    response = self.agent.invoke({"input": message, "chat_history": self.chat_history})
-    # Save the chat history
-    self.chat_history.append((message, response["output"]))
-    # Return the response
-    return response["output"]
+    def ask(self, prompt, callbacks):
+        response = self.agent.invoke(
+            {
+                "chat_history": chat_history,
+                "input": prompt,
+            },
+            {
+                "callbacks": [callbacks]
+            }
+        )
+
+        chat_history.extend([HumanMessage(content=prompt), response["output"]])
+
+        return response["output"]

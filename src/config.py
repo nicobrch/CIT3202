@@ -2,7 +2,7 @@
 import toml
 
 def load_secrets():
-  with open("secrets.toml", "r") as file:
+  with open("../secrets.toml", "r") as file:
     secrets = toml.load(file)
   return secrets
 

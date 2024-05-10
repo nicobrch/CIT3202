@@ -1,6 +1,9 @@
 import db
 import documents
 from langchain_core.tools import tool
+from langchain.tools.render import render_text_description_and_args
+
+docs_dir = "../docs/"
 
 @tool
 def obtener_productos_por_precio(min_price: int, max_price: int):
@@ -23,31 +26,31 @@ def obtener_todos_los_productos():
 @tool
 def obtener_informacion_tiendas(message: str):
   """Obtiene la información de las tiendas físicas de la empresa. Debe recibir un mensaje como input para buscar las tiendas."""
-  stores = documents.search_document("docs/tiendas.txt", message)
+  stores = documents.search_document(f"{docs_dir}tiendas.txt", message)
   return stores
 
 @tool
 def obtener_preguntas_frecuentes(message: str):
   """Obtiene información sobre preguntas frecuentes. Debe recibir un mensaje como input para buscar una pregunta relacionada."""
-  faq = documents.search_document("docs/faq.txt", message)
+  faq = documents.search_document(f"{docs_dir}faq.txt", message)
   return faq
 
 @tool
 def obtener_politicas_de_despacho(message: str):
   """Obtiene información sobre las politicas de despacho de la empresa. Debe recibir un mensaje como input para buscar informacion relacionada."""
-  despachos = documents.search_document("docs/politicas-despacho.txt", message)
+  despachos = documents.search_document(f"{docs_dir}politicas-despacho.txt", message)
   return despachos
 
 @tool
 def obtener_politicas_de_privacidad(message: str):
   """Obtiene información sobre las politicas de privacidad. Debe recibir un mensaje como input para buscar informacion relacionada."""
-  privacidad = documents.search_document("docs/politicas-privacidad.txt", message)
+  privacidad = documents.search_document(f"{docs_dir}politicas-privacidad.txt", message)
   return privacidad
 
 @tool
 def obtener_politicas_de_cambios_y_devoluciones(message: str):
   """Obtiene información sobre las politicas de cambios y devoluciones. Debe recibir un mensaje como input para buscar informacion relacionada."""
-  cambios = documents.search_document("docs/politicas-cambios-devoluciones.txt", message)
+  cambios = documents.search_document(f"{docs_dir}politicas-cambios-devoluciones.txt", message)
   return cambios
 
 tools = [
@@ -60,3 +63,5 @@ tools = [
   obtener_politicas_de_privacidad,
   obtener_politicas_de_cambios_y_devoluciones,
 ]
+
+tool_names = render_text_description_and_args(tools)
