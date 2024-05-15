@@ -18,11 +18,11 @@ def create_database():
     conn.close()
 
 # Function to insert a product into the database
-def insert_product(name, price, stock):
+def insert_product(name, price, stock, rating):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
 
-    c.execute("INSERT INTO products (name, price, stock) VALUES (?, ?, ?)", (name, price, stock))
+    c.execute("INSERT INTO products (name, price, stock, rating) VALUES (?, ?, ?, ?)", (name, price, stock, rating))
 
     conn.commit()
     conn.close()
