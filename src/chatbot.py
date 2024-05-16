@@ -83,7 +83,7 @@ class Chatbot:
 
         return response["output"]
     
-def output_to_csv(file_path=f"{config.path}data/chat_history.csv"):
+def output_to_csv(file_path="chat_history.csv"):
     with open(file_path, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Questions', 'Answers', 'Response Time'])

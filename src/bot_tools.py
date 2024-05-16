@@ -1,9 +1,6 @@
 import sql_db
 import vector_db
-import config
 from langchain_core.tools import tool
-
-docs_dir = f"{config.path}docs/"
 
 @tool
 def todos_los_productos():

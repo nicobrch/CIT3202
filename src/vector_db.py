@@ -20,7 +20,7 @@ vectorstore = PineconeVectorStore(
 
 def load_data():
     loader = TextLoader(
-        f"{config.path}data/tiendas.txt",
+        "data/tiendas.txt",
         encoding="utf-8"
     )
 

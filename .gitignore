@@ -5,6 +5,7 @@
 # Python
 __pycache__
 env
+.venv
 
 # Variables de entorno
 .env
@@ -12,3 +13,6 @@ env
 .dockerignore
 *.toml
 !example.toml
+
+# CSVs
+*.csv

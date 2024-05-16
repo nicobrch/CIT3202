@@ -1,14 +1,8 @@
 # Configuración de credenciales
 import toml
 
-production = True # Falso para python, True para streamlit
-path = "./"
-
-if production:
-    path = "../"
-
 def load_secrets():
-    with open(f"{path}secrets.toml", "r") as file:
+    with open("secrets.toml", "r") as file:
         secrets = toml.load(file)
     return secrets
 

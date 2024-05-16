@@ -2,7 +2,6 @@ import os
 import string
 import re
 import nltk
-import config
 nltk.download('punkt')
 from nltk.tokenize import word_tokenize
 nltk.download('stopwords')
@@ -32,7 +31,7 @@ def tokenize(text):
     return words
 
 def tokenize_files():
-    docs_folder = f"{config.path}docs/"
+    docs_folder = "docs/"
     for file_name in os.listdir(docs_folder):
         if file_name.endswith('.txt'):
             file_path = os.path.join(docs_folder, file_name)
@@ -41,5 +40,5 @@ def tokenize_files():
         text = file.read()
         words = tokenize(text)
 
-    with open(f"{config.path}data/{file_name}", 'w', encoding='utf-8') as file:
+    with open("data/{file_name}", 'w', encoding='utf-8') as file:
         file.write(' '.join(words))
