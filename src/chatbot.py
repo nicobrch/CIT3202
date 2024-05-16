@@ -18,7 +18,7 @@ class Chatbot:
 
         # Define the language model
         llm = ChatOpenAI(
-            api_key=config.api_key,
+            api_key=config.openai_api_key,
             model="gpt-3.5-turbo",
             temperature=0.5,
             streaming=True,
