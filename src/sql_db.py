@@ -1,6 +1,7 @@
 import sqlite3
+import config
 
-db_name = "../database.db"
+db_name = f"{config.path}database.db"
 
 # Function to create the database and the 'products' table
 def create_database():
@@ -91,7 +92,7 @@ def get_products_by_stock_range(min_stock, max_stock):
     c = conn.cursor()
 
     # Select products based on stock value
-    c.execute("SELECT * FROM products WHERE stock >= ? AND price <= ?", (min_stock, max_stock))
+    c.execute("SELECT * FROM products WHERE stock >= ? AND stock <= ?", (min_stock, max_stock))
     products = c.fetchall()
 
     conn.close()
@@ -103,17 +104,6 @@ def get_top_n_products_by_higher_rating(n):
     c = conn.cursor()
 
     c.execute("SELECT * FROM products ORDER BY rating DESC LIMIT ?", (n,))
-    products = c.fetchall()
-
-    conn.close()
-    return products
-
-# Function to get the top n products by lower rating
-def get_top_n_products_by_higher_rating(n):
-    conn = sqlite3.connect(db_name)
-    c = conn.cursor()
-
-    c.execute("SELECT * FROM products ORDER BY rating ASC LIMIT ?", (n,))
     products = c.fetchall()
 
     conn.close()

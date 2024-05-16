@@ -1,67 +1,65 @@
-import db
-import documents
+import sql_db
+import vector_db
+import config
 from langchain_core.tools import tool
-from langchain.tools.render import render_text_description_and_args
 
-docs_dir = "../docs/"
-
-@tool
-def obtener_productos_por_precio(min_price: int, max_price: int):
-  """Obtiene los productos dentro de un rango de precios."""
-  products = db.get_products_by_price_range(min_price, max_price)
-  return products
+docs_dir = f"{config.path}docs/"
 
 @tool
-def obtener_productos_por_stock(stock: bool):
-  """Obtiene los productos por disponibilidad de stock. Por ejemplo, si stock es True, se obtienen los productos en stock."""
-  products = db.get_products_by_stock(stock)
-  return products
-
-@tool
-def obtener_todos_los_productos():
+def todos_los_productos():
   """Obtiene todos los productos de la base de datos."""
-  products = db.get_all_products()
+  products = sql_db.get_all_products()
   return products
 
 @tool
-def obtener_informacion_tiendas(message: str):
-  """Obtiene la información de las tiendas físicas de la empresa. Debe recibir un mensaje como input para buscar las tiendas."""
-  stores = documents.search_document(f"{docs_dir}tiendas.txt", message)
-  return stores
+def productos_por_nombre(nombre: str):
+  """Obtiene los productos los cuáles contengan un string dentro de su nombre."""
+  products = sql_db.get_products_by_name_likeliness(nombre)
+  return products
 
 @tool
-def obtener_preguntas_frecuentes(message: str):
-  """Obtiene información sobre preguntas frecuentes. Debe recibir un mensaje como input para buscar una pregunta relacionada."""
-  faq = documents.search_document(f"{docs_dir}faq.txt", message)
-  return faq
+def n_productos_con_menor_precio(cantidad: int):
+  """Obtiene los N productos más baratos en precio."""
+  products = sql_db.get_top_n_products_by_lower_price(cantidad)
+  return products
 
 @tool
-def obtener_politicas_de_despacho(message: str):
-  """Obtiene información sobre las politicas de despacho de la empresa. Debe recibir un mensaje como input para buscar informacion relacionada."""
-  despachos = documents.search_document(f"{docs_dir}politicas-despacho.txt", message)
-  return despachos
+def n_productos_con_mayor_precio(cantidad: int):
+  """Obtiene los N productos más caros en precio."""
+  products = sql_db.get_top_n_products_by_higher_price(cantidad)
+  return products
 
 @tool
-def obtener_politicas_de_privacidad(message: str):
-  """Obtiene información sobre las politicas de privacidad. Debe recibir un mensaje como input para buscar informacion relacionada."""
-  privacidad = documents.search_document(f"{docs_dir}politicas-privacidad.txt", message)
-  return privacidad
+def productos_por_rango_de_precios(precio_min: int, precio_max: int):
+  """Obtiene todos los productos dado un rango de precio mínimo y máximo."""
+  products = sql_db.get_products_by_price_range(precio_min, precio_max)
+  return products
 
 @tool
-def obtener_politicas_de_cambios_y_devoluciones(message: str):
-  """Obtiene información sobre las politicas de cambios y devoluciones. Debe recibir un mensaje como input para buscar informacion relacionada."""
-  cambios = documents.search_document(f"{docs_dir}politicas-cambios-devoluciones.txt", message)
-  return cambios
+def productos_por_rango_de_stock(stock_min: int, stock_max: int):
+  """Obtiene todos los productos dado un rango de stock mínimo y máximo."""
+  products = sql_db.get_products_by_stock_range(stock_min, stock_max)
+  return products
+
+@tool
+def n_productos_con_mayor_rating(cantidad: float):
+  """Obtiene los N productos con mayor rating, es decir, lo mejor valorados."""
+  products = sql_db.get_top_n_products_by_higher_rating(cantidad)
+  return products
+
+@tool
+def buscar_informacion_empresa(query: str):
+  """Busca dentro de la base de datos vectorial sobre información de la empresa Geekz, tal como preguntas frecuentes, politicas de cambios y devoluciones, politicas de despacho y privacidad y las tiendas. Recibe un string de consulta y devuelve la información más relevante."""
+  products = vector_db.search(query)
+  return products
 
 tools = [
-  obtener_productos_por_precio,
-  obtener_productos_por_stock,
-  obtener_todos_los_productos,
-  obtener_informacion_tiendas,
-  obtener_preguntas_frecuentes,
-  obtener_politicas_de_despacho,
-  obtener_politicas_de_privacidad,
-  obtener_politicas_de_cambios_y_devoluciones,
+  todos_los_productos,
+  productos_por_nombre,
+  n_productos_con_menor_precio,
+  n_productos_con_mayor_precio,
+  productos_por_rango_de_precios,
+  productos_por_rango_de_stock,
+  n_productos_con_mayor_rating,
+  buscar_informacion_empresa
 ]
-
-tool_names = render_text_description_and_args(tools)

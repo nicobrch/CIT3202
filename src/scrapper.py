@@ -1,4 +1,4 @@
-import db
+import sql_db
 import random
 import re
 from selenium import webdriver
@@ -23,7 +23,7 @@ def extract_and_insert_products(products):
     availability = random.randint(0, 20)
     rating = round(random.uniform(1, 5), 2)
 
-    db.insert_product(name, price, availability, rating)
+    sql_db.insert_product(name, price, availability, rating)
 
 def scrape_products(url):
 # Set up the Selenium WebDriver

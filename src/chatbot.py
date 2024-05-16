@@ -19,8 +19,8 @@ class Chatbot:
         # Define the language model
         llm = ChatOpenAI(
             api_key=config.openai_api_key,
-            model="gpt-3.5-turbo",
-            temperature=0.5,
+            model="gpt-4o",
+            temperature=0.3,
             streaming=True,
         )
 
@@ -77,9 +77,13 @@ class Chatbot:
 
         chat_history.extend([HumanMessage(content=prompt), response["output"]])
 
+        # Ensure chat_history has a maximum of 5 elements
+        while len(chat_history) > 5:
+            chat_history.pop(0)
+
         return response["output"]
     
-def output_to_csv(file_path="../data/chat_history.csv"):
+def output_to_csv(file_path=f"{config.path}data/chat_history.csv"):
     with open(file_path, 'w', newline='', encoding="utf-8") as csvfile:
         writer = csv.writer(csvfile)
         writer.writerow(['Questions', 'Answers', 'Response Time'])
