@@ -1,27 +1,38 @@
-import config
-from langchain_pinecone import PineconeVectorStore
-from pinecone import Pinecone as PineconeClient
+import os
+from dotenv import load_dotenv
+from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings
-from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import CharacterTextSplitter  
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
+from langchain_text_splitters import CharacterTextSplitter
 
-index_name = "datasc"
+load_dotenv()
+
+VECTOR_CONFIG = {
+    'connection': 'postgresql+psycopg://postgres:postgres@localhost:5432/datascience',
+    'collection_name': 'docs'
+}
 
 embeddings = OpenAIEmbeddings(
-    api_key=config.openai_api_key,
+    api_key=os.getenv("OPENAI_API_KEY"),
     model="text-embedding-3-small",
 )
 
-vectorstore = PineconeVectorStore(
-    pinecone_api_key=config.pinecone_api_key,
-    index_name=index_name,
-    embedding=embeddings,
+vectorstore = PGVector(
+    embeddings=embeddings,
+    collection_name=VECTOR_CONFIG['collection_name'],
+    connection=VECTOR_CONFIG['connection'],
+    use_jsonb=True,
 )
 
-def load_data():
-    loader = TextLoader(
-        "data/tiendas.txt",
-        encoding="utf-8"
+def load_documents():
+    loader = DirectoryLoader(
+        path="docs",
+        glob="**/*.txt",
+        loader_cls=TextLoader,
+        loader_kwargs={
+            "encoding": "utf-8",
+            "autodetect_encoding": True
+        }
     )
 
     documents = loader.load()
@@ -36,7 +47,5 @@ def load_data():
 
     vectorstore.add_documents(docs)
 
-def search(query: str):
-    return vectorstore.similarity_search(query)
-
-load_data()
+def search_documents(query: str):
+    return vectorstore.similarity_search(query, k=5)
