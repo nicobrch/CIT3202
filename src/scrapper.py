@@ -1,29 +1,44 @@
-import sql_db
-import random
-import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
+import csv
+import random
 
-def to_lowercase(text):
-  return text.lower()
-
-def remove_special_characters(text):
-  return re.sub(r'[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ\s]', '', text)
+# Save product and price_value in a list
+product_data = []
 
 def extract_and_insert_products(products):
-   
+  print("Extrayendo productos...")
   for product in products:
     name = product.find('h6', itemprop='name').get_text(strip=True)
-    name = to_lowercase(name)
-    name = remove_special_characters(name)
-    price = product.find('span', class_='oe_currency_value').get_text(strip=True)
-    availability = random.randint(0, 20)
-    rating = round(random.uniform(1, 5), 2)
+    price_span = product.find('span', {'data-oe-type': 'monetary', 'data-oe-expression': "combination_info['price']"})
+    if price_span:
+      price_value = price_span.find('span', class_='oe_currency_value').text
+      # Remove non-numeric characters (e.g., spaces, commas) and convert to integer
+      price_value = int(price_value.replace('.', '').strip())
 
-    sql_db.insert_product(name, price, availability, rating)
+    stock_value = random.randint(0, 50)
+    rating_value = round(random.uniform(0, 5), 1)
+
+    if name not in [p[0] for p in product_data]:
+      product_data.append((name, price_value, stock_value, rating_value))
+
+  print("Productos extraídos:", len(product_data))
+
+def save_to_csv():
+  # Define the CSV file path
+  csv_file = "./docs/products.csv"
+  print("Guardando productos en", csv_file)
+
+  # Write the product data to the CSV file
+  with open(csv_file, 'w', newline='', encoding="utf-8") as file:
+    writer = csv.writer(file)
+    writer.writerow(['Name', 'Price', 'Stock', 'Rating'])  # Write the header row
+    writer.writerows(product_data)  # Write the product data rows
+
+  print("Productos guardados")
 
 def scrape_products(url):
 # Set up the Selenium WebDriver
@@ -31,12 +46,12 @@ def scrape_products(url):
   driver.get(url)
 
   # Simulate scroll events to load additional content
-  for _ in range(50):  # Assuming there are 5 scroll events in total
+  for _ in range(75):  # Assuming there are 5 scroll events in total
     # Scroll down using JavaScript
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
     # Wait for the dynamically loaded content to appear
-    WebDriverWait(driver, 200).until(EC.presence_of_element_located((By.CLASS_NAME, 'oe_product')))
+    WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'oe_product')))
 
     # Extract and print initial data
     initial_html = driver.page_source
@@ -44,5 +59,9 @@ def scrape_products(url):
     initial_products = initial_soup.find_all('td', class_='oe_product')
     extract_and_insert_products(initial_products)
 
+  save_to_csv()
+
   # Close the WebDriver
   driver.quit()
+
+scrape_products("https://geekz.cl/shop")
