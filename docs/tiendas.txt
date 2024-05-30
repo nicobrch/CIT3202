@@ -1,8 +1,1 @@
-Tiendas físicas de Geekz
-
-Costanera Center. Dirección: Av. Andrés Bello 2425, Providencia, Región Metropolitana. Horario de atención: Lunes a Domingo de 10:00 a 20:30 hrs.
-Mallplaza Oeste. Dirección: Av. Américo Vespucio 1501, Cerrillos, Región Metropolitana. Horario de atención: Lunes a Domingo de 10:00 a 20:00 hrs.
-Mallplaza Los Dominicos. Dirección: Av. Padre Hurtado Sur 875, Las Condes, Región Metropolitana. Horario de atención: Lunes a Domingo de 10:00 a 20:00 hrs.
-Mall Barrio Independencia. Dirección: Av. Independencia 565, Independencia, Región Metropolitana. Horario de atención: Lunes a Domingo de 10:00 a 20:00 hrs.
-Mall Marina Oriente. Dirección: 14 Nte. 976, Viña del Mar, Región de Valparaíso. Horario de atención: Lunes a Viernes de 09:30 a 20:00 hrs,  Sabado y Dominingo 10:00 a 20:00 hrs.
-Mall Open Plaza Rancagua. Dirección: Estado 235, Rancagua, Region de O'Higgins. Horario de atención: Lunes a Domingo de 10:00 a 20:30 hrs.
+tiendas físicas geekz costanera center dirección av andrés bello 2425 providencia región metropolitana horario atención lunes domingo 1000 2030 hrs mallplaza oeste dirección av américo vespucio 1501 cerrillos región metropolitana horario atención lunes domingo 1000 2000 hrs mallplaza dominicos dirección av padre hurtado sur 875 condes región metropolitana horario atención lunes domingo 1000 2000 hrs mall barrio independencia dirección av independencia 565 independencia región metropolitana horario atención lunes domingo 1000 2000 hrs mall marina oriente dirección 14 nte 976 viña mar región valparaíso horario atención lunes viernes 0930 2000 hrs sabado dominingo 1000 2000 hrs mall open plaza rancagua dirección 235 rancagua region ohiggins horario atención lunes domingo 1000 2030 hrs
