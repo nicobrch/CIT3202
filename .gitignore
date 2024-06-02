@@ -11,8 +11,7 @@ env
 .env
 .env.local
 .dockerignore
-*.toml
-!example.toml
 
 # CSVs
 *.csv
+!products.csv
