@@ -24,6 +24,8 @@ session = Session()
 # Read CSV
 df = pd.read_csv("./docs/products.csv")
 
+print("Sembrando base de datos con productos...")
+
 # Seed database with CSV products
 for index, row in df.iterrows():
     product = Product(
@@ -33,8 +35,14 @@ for index, row in df.iterrows():
         stock=row["Stock"],
         rating=row["Rating"]
     )
-    session.add(product)
+    try:
+        session.add(product)
+    except:
+        print(f"Error al sembrar producto: {product.name}")
+        session.rollback()
 
 session.commit()
+
+print("Base de datos sembrada con éxito.")
 
 session.close()
