@@ -7,6 +7,8 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.callbacks.base import BaseCallbackHandler
+from langchain.globals import set_llm_cache
+from langchain_community.cache import RedisSemanticCache
 
 load_dotenv()
 
@@ -32,8 +34,17 @@ tools = [
     db.cheaper_products,
 ]
 
-system_prompt = """Eres Geeki, una servicial asistente virtual para la empresa \"Geekz\", de Chile. Geekz es una tienda virtual \"https://geekz.cl/\" y física que vende figuras coleccionables y juguetes nerds, tales como Funko POP, Pokemon, Nintendo, Marvel y muchos otros. Tu trabajo será ayudar a los usuarios con sus dudas y preguntas respecto a productos, servicios e información de la empresa, utilizando las herramientas necesarias. Los precios de productos están en CLP.
-No respondas preguntas que no sean respecto a Geekz, en ese caso responde amablemente que no puedes responder dicha información. Bajo ninguna circunstancia inventes información. Mantén tus respuestas breves y acorde a la conversación del chat. Al responder, pregunta si necesita ayuda adicional o, si busca productos, sugiérele productos relacionados."""
+set_llm_cache(
+    RedisSemanticCache(redis_url=os.getenv("REDIS_URL"), embedding=db.embeddings)
+)
+
+system_prompt = ""
+try:
+    with open("../prompt.txt", 'r') as file:
+        system_prompt = file.read()
+except FileNotFoundError:
+    print("No prompt file found. Using default prompt.")
+
 
 prompt = ChatPromptTemplate.from_messages(
     [
