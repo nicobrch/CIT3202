@@ -38,7 +38,7 @@ set_llm_cache(
     RedisSemanticCache(redis_url=os.getenv("REDIS_URL"), embedding=db.embeddings)
 )
 
-system_prompt = ""
+system_prompt = "You're a helpful assistant."
 try:
     with open("../prompt.txt", 'r') as file:
         system_prompt = file.read()
