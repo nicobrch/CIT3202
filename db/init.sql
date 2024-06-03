@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS unaccent;
 
 -- Create table to store products
 CREATE TABLE IF NOT EXISTS products (
@@ -6,8 +7,23 @@ CREATE TABLE IF NOT EXISTS products (
   name TEXT NOT NULL,
   price INTEGER NOT NULL,
   stock INTEGER NOT NULL,
-  rating REAL NOT NULL DEFAULT 0
-);
+  rating REAL NOT NULL DEFAULT 0,
+  tsv tsvector DEFAULT NULL
+)
+
+-- Create tsvector index
+CREATE INDEX IF NOT EXISTS tsv_idx ON products USING GIN (tsv);
+
+-- Update tsvector when product name changes
+CREATE FUNCTION update_tsvector() RETURNS trigger AS $$
+BEGIN
+  NEW.tsv := to_tsvector('simple', unaccent(NEW.name));
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE
+ON products FOR EACH ROW EXECUTE FUNCTION update_tsvector();
 
 -- Create table to store documents embeddings
 CREATE TABLE IF NOT EXISTS documents (

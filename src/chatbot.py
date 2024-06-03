@@ -1,5 +1,6 @@
 import os
 import db
+import bottools
 import streamlit as st
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -29,9 +30,9 @@ llm = ChatOpenAI(
 )
 
 tools = [
-    db.similarity_search,
-    db.search_products,
-    db.cheaper_products,
+    bottools.similarity_search,
+    bottools.search_products,
+    bottools.cheaper_products,
 ]
 
 set_llm_cache(
