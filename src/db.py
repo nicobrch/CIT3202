@@ -1,10 +1,12 @@
 import os
 from dotenv import load_dotenv
-from langchain_community.vectorstores import SupabaseVectorStore
+from langchain_postgres import PGVector
+from langchain_postgres.vectorstores import PGVector
 from langchain_openai import OpenAIEmbeddings
-from supabase.client import Client, create_client
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import CharacterTextSplitter
+from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy.orm import declarative_base, sessionmaker
 from langchain_core.tools import tool
 
 load_dotenv()
@@ -23,7 +25,7 @@ def similarity_search(query: str):
 def search_products(name: str):
     """Busca productos por su nombre."""
     try:
-        data, count = supabase.table("products").select("*").ilike("name", f"%{name}%").execute()
+        data = session.query(Product).filter(Product.name.ilike(f"%{name}%")).all()
         return data
     except Exception as e:
         print(f"Error: {e}")
@@ -34,31 +36,43 @@ def cheaper_products(quantity: int, name: str = None):
     """Busca los N productos más baratos. Recibe un número entero para la cantidad de productos a buscar. También puede recibir un nombre de producto para buscar productos más baratos que contengan dicho nombre."""
     try:
         if name:
-            data, count = supabase.table("products").select("*").ilike("name", f"%{name}%").limit(quantity).order("price").execute()
+            data = session.query(Product).filter(Product.name.ilike(f"%{name}%")).order_by(Product.price).limit(quantity).all()
             return data
         else:
-            data, count = supabase.table("products").select("*").limit(quantity).order("price").execute()
+            data = session.query(Product).order_by(Product.price).limit(quantity).all()
             return data
     except Exception as e:
         print(f"Error: {e}")
         return None
 
-supabase: Client = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_SERVICE_KEY"))
+Base = declarative_base()
+
+class Product(Base):
+    __tablename__ = 'products'
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    price = Column(Integer)
+    stock = Column(Integer)
+    rating = Column(Float)
+
+engine = create_engine(os.getenv("POSTGRES_URL"))
+Session = sessionmaker(bind=engine)
+session = Session()
 
 embeddings = OpenAIEmbeddings(
     api_key=os.getenv("OPENAI_API_KEY"),
     model="text-embedding-3-small",
 )
 
-vectorstore = SupabaseVectorStore(
-    embedding=embeddings,
-    client=supabase,
-    table_name="documents",
-    query_name="document_match",
-    chunk_size=500,
+vectorstore = PGVector(
+    embeddings=embeddings,
+    collection_name="documents",
+    connection=os.getenv("POSTGRES_URL"),
+    use_jsonb=True,
 )
 
-def document_loader():
+def load_documents():
     loader = DirectoryLoader(
         path="docs",
         glob="**/*.txt",
@@ -78,3 +92,7 @@ def document_loader():
     )
 
     docs = text_splitter.split_documents(documents)
+
+    print(f"Adding {len(docs)} documents to the vectorstore")
+    vectorstore.add_documents(docs)
+    print("Done")
