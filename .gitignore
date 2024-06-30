@@ -12,6 +12,7 @@ env
 .env.local
 .dockerignore
 
-# CSVs
+# Elementos
 *.csv
 !products.csv
+*.session.sql
