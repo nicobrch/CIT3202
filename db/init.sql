@@ -8,18 +8,18 @@ CREATE TABLE IF NOT EXISTS products (
   stock INTEGER NOT NULL,
   rating REAL NOT NULL DEFAULT 0,
   tsv tsvector DEFAULT NULL
-)
+);
 
 CREATE INDEX IF NOT EXISTS tsv_idx ON products USING GIN (tsv);
 
-CREATE FUNCTION IF NOT EXISTS update_tsvector() RETURNS trigger AS $$
+CREATE FUNCTION update_tsvector() RETURNS trigger AS $$
 BEGIN
   NEW.tsv := to_tsvector('simple', unaccent(NEW.name));
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER IF NOT EXISTS tsvectorupdate BEFORE INSERT OR UPDATE
+CREATE TRIGGER tsvectorupdate BEFORE INSERT OR UPDATE
 ON products FOR EACH ROW EXECUTE FUNCTION update_tsvector();
 
 CREATE TABLE IF NOT EXISTS documents (
