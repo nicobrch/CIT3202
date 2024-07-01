@@ -24,7 +24,7 @@ class StreamHandler(BaseCallbackHandler):
 
 llm = ChatOpenAI(
     api_key=os.getenv("OPENAI_API_KEY"),
-    model="gpt-4o",
+    model=os.getenv("OPENAI_MODEL"),
     temperature=0.3,
     streaming=True,
 )
