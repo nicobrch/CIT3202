@@ -5,6 +5,7 @@ from langchain_core.tools import tool
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.dialects.postgresql import TSVECTOR
 from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.pool import NullPool
 from sqlalchemy import func
 
 load_dotenv()
@@ -57,6 +58,6 @@ class Product(Base):
     rating = Column(Float)
     tsv = Column(TSVECTOR, nullable=True)
 
-engine = create_engine(os.getenv("POSTGRES_URL"))
+engine = create_engine(os.getenv("SUPABASE_SQL_URL"), client_encoding='utf8', poolclass=NullPool)
 Session = sessionmaker(bind=engine)
 session = Session()

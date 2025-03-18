@@ -9,6 +9,7 @@ from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain_core.messages import HumanMessage, AIMessage
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain.globals import set_llm_cache
+from langchain.cache import InMemoryCache
 from langchain_community.cache import RedisSemanticCache
 
 load_dotenv()
@@ -35,9 +36,11 @@ tools = [
     bottools.cheaper_products,
 ]
 
-set_llm_cache(
-    RedisSemanticCache(redis_url=os.getenv("REDIS_URL"), embedding=db.embeddings)
-)
+# set_llm_cache(
+#     RedisSemanticCache(redis_url=os.getenv("REDIS_URL"), embedding=db.embeddings)
+# )
+
+set_llm_cache(InMemoryCache())
 
 system_prompt = "You're a helpful assistant."
 try:

@@ -1,8 +1,8 @@
 import os
 from dotenv import load_dotenv
-from langchain_postgres import PGVector
-from langchain_postgres.vectorstores import PGVector
+from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_openai import OpenAIEmbeddings
+from supabase.client import Client, create_client
 
 load_dotenv()
 
@@ -11,9 +11,14 @@ embeddings = OpenAIEmbeddings(
     model="text-embedding-3-small",
 )
 
-vectorstore = PGVector(
-    embeddings=embeddings,
-    collection_name="documents",
-    connection=os.getenv("POSTGRES_URL"),
-    use_jsonb=True,
+supabase: Client = create_client(
+    supabase_url=os.getenv("SUPABASE_URL"),
+    supabase_key=os.getenv("SUPABASE_SERVICE_KEY"),
+)
+
+vectorstore = SupabaseVectorStore(
+    client=supabase,
+    embedding=embeddings,
+    table_name="documents",
+    query_name="match_documents",
 )
